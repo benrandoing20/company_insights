@@ -2,6 +2,7 @@ import os
 from utils.news_api import fetch_news
 from utils.tavily_api import fetch_tavily_results
 from utils.file_manager import create_directory_structure, save_to_file
+from utils.firecrawl_scraper import scrape_article 
 
 def main():
     companies = ["Starbucks"]
@@ -17,7 +18,12 @@ def main():
         for idx, article in enumerate(news_articles):
             title = article.get("title", "No Title")
             url = article.get("url", "")
-            content = f"Title: {title}\nURL: {url}\n\n{article.get('content', 'No body')}"
+            
+            # Scrape full article content using Firecrawl
+            full_content = scrape_article(url) if url else "No URL available."
+
+            # Save scraped content
+            content = f"Title: {title}\nURL: {url}\n\n{full_content}"
             save_to_file(company_dir, f"news_{idx}.txt", content)
         
         # Fetch Tavily search results
