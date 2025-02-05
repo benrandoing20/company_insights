@@ -4,6 +4,7 @@ import ollama
 from datetime import datetime
 from utils.file_manager import create_directory_structure, save_to_file
 
+
 def load_text_files(directory):
     """Loads all text files from a given directory and combines them into a list."""
     file_paths = glob.glob(os.path.join(directory, "*.txt"))
@@ -12,6 +13,7 @@ def load_text_files(directory):
         with open(file_path, "r", encoding="utf-8") as f:
             articles.append(f.read())
     return articles
+
 
 def extract_key_insights(articles):
     """Summarizes key points and extracts subtle insights using an LLM (Ollama)."""
@@ -30,21 +32,24 @@ def extract_key_insights(articles):
     3. Any unique or hidden insights.
     """
 
-    response = ollama.chat(model="llama3.2", messages=[{"role": "user", "content": prompt}])
+    response = ollama.chat(
+        model="llama3.2", messages=[{"role": "user", "content": prompt}]
+    )
 
     return response["message"]["content"].strip()
+
 
 def summarize_news():
     """Main function to aggregate and summarize the daily news insights."""
     today = datetime.now().strftime("%Y-%m-%d")
     base_dir = f"./daily_data/{today}"
-    
+
     companies = os.listdir(base_dir)  # Get company folders
     summary_dir = create_directory_structure(base_dir=base_dir, company="summaries")
 
     for company in companies:
         company_dir = os.path.join(base_dir, company)
-        if not os.path.isdir(company_dir): 
+        if not os.path.isdir(company_dir):
             continue  # Skip if not a directory
 
         articles = load_text_files(company_dir)
@@ -55,6 +60,7 @@ def summarize_news():
         save_to_file(summary_dir, f"{company}_summary.txt", summary)
 
         print(f"Summary saved for {company}")
+
 
 if __name__ == "__main__":
     summarize_news()
