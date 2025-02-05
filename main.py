@@ -1,4 +1,3 @@
-import os
 from utils.news_api import fetch_news
 from utils.tavily_api import fetch_tavily_results
 from utils.file_manager import create_directory_structure, save_to_file
