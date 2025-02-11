@@ -4,7 +4,7 @@ from utils.file_manager import create_directory_structure, save_to_file
 from utils.firecrawl_scraper import scrape_article
 
 
-def main():
+def scrape_news():
     companies = ["Starbucks"]
 
     for company in companies:
@@ -55,4 +55,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    scrape_news()
