@@ -2,7 +2,7 @@ import os
 import glob
 import ollama
 from datetime import datetime
-from utils.file_manager import create_directory_structure, save_to_file
+from utils.file_manager import save_to_file
 
 
 def load_text_files(directory):
@@ -45,19 +45,18 @@ def summarize_news():
     base_dir = f"./daily_data/{today}"
 
     companies = os.listdir(base_dir)  # Get company folders
-    summary_dir = create_directory_structure(base_dir=base_dir, company="summaries")
 
     for company in companies:
         company_dir = os.path.join(base_dir, company)
         if not os.path.isdir(company_dir):
-            continue  # Skip if not a directory
+            continue
 
         articles = load_text_files(company_dir)
         if not articles:
             continue
 
         summary = extract_key_insights(articles)
-        save_to_file(summary_dir, f"{company}_summary.txt", summary)
+        save_to_file(company_dir, f"{company}_summary.txt", summary)
 
         print(f"Summary saved for {company}")
 
