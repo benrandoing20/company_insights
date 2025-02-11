@@ -5,7 +5,6 @@ from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain.agents import initialize_agent, Tool
 from langchain_ollama import ChatOllama
 import yahooquery as yq  # Using yahooquery for stock data
-import pandas as pd
 
 # Load environment variables
 load_dotenv()
@@ -20,6 +19,7 @@ llm = ChatOllama(model="llama3.2", temperature=0)
 search_api = TavilySearchAPIWrapper()
 tavily_tool = TavilySearchResults(api_wrapper=search_api)
 
+
 # Function to fetch stock price movement using yahooquery
 def get_stock_data(ticker, period="1mo"):
     """Gets stock price movement for a company using yahooquery over a given period."""
@@ -29,9 +29,12 @@ def get_stock_data(ticker, period="1mo"):
     if not history.empty:
         # Reset index to access 'date' as a column instead of MultiIndex
         history.reset_index(inplace=True)
-        return history.to_dict(orient="records")  # Return historical data as a list of dicts
+        return history.to_dict(
+            orient="records"
+        )  # Return historical data as a list of dicts
     else:
         return {"error": "Stock data unavailable."}
+
 
 # Function to search for similar past events
 def search_trends(company_event):
@@ -39,20 +42,30 @@ def search_trends(company_event):
     query = f"Find past company events similar to: {company_event}. Focus on financial impact and the event date."
     return tavily_tool.invoke(query)  # Using TavilySearchResults
 
+
 # Define LangChain Agent Tools
 tools = [
-    Tool(name="CompanyTrendSearch", func=search_trends, description="Searches for past similar company events."),
-    Tool(name="StockPriceLookup", func=get_stock_data, description="Gets historical stock price movements.")
+    Tool(
+        name="CompanyTrendSearch",
+        func=search_trends,
+        description="Searches for past similar company events.",
+    ),
+    Tool(
+        name="StockPriceLookup",
+        func=get_stock_data,
+        description="Gets historical stock price movements.",
+    ),
 ]
 
 # Initialize LLM Agent with Tools
 agent = initialize_agent(
-    tools=tools, 
-    llm=llm, 
+    tools=tools,
+    llm=llm,
     agent="zero-shot-react-description",
     verbose=True,
-    handle_parsing_errors=True
+    handle_parsing_errors=True,
 )
+
 
 def analyze_company_highlight(company, event_description, stock_ticker):
     """
@@ -80,8 +93,12 @@ def analyze_company_highlight(company, event_description, stock_ticker):
     print(stock_price_movement)
 
     if past_event_date:
-        print(f"\n Found Similar Event on: {past_event_date}. Fetching stock movement around that date...\n")
-        historical_stock_price = get_stock_data(stock_ticker, period="3mo")  # Get stock data for the last 3 months
+        print(
+            f"\n Found Similar Event on: {past_event_date}. Fetching stock movement around that date...\n"
+        )
+        historical_stock_price = get_stock_data(
+            stock_ticker, period="3mo"
+        )  # Get stock data for the last 3 months
     else:
         historical_stock_price = "No past event date found."
 
@@ -118,6 +135,7 @@ def analyze_company_highlight(company, event_description, stock_ticker):
     print(f"\n **Stock Price Movement Today:** {stock_price_movement}")
 
     return financial_analysis, stock_price_movement
+
 
 # Example daily highlight for Starbucks
 company = "Starbucks"

@@ -49,7 +49,7 @@ def summarize_news():
     for company in companies:
         company_dir = os.path.join(base_dir, company)
         if not os.path.isdir(company_dir):
-            continue  
+            continue
 
         articles = load_text_files(company_dir)
         if not articles:

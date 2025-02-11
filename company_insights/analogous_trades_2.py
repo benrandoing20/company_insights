@@ -23,6 +23,7 @@ llm = ChatOllama(model="llama3.2")
 search_api = TavilySearchAPIWrapper()
 tavily_tool = TavilySearchResults(api_wrapper=search_api)
 
+
 # ---------------------------------------------------------------------------- #
 #                        Identify Similar Companies/Events                     #
 # ---------------------------------------------------------------------------- #
@@ -30,7 +31,7 @@ def search_similar_companies_and_events(company_event_description, max_competito
     """
     1) Ask the LLM to propose competitor companies that experienced a similar event.
     2) For each proposed competitor event, call Tavily to gather historical context.
-    
+
     Returns a list of dicts, each containing:
       {
         'competitor': <company name>,
@@ -56,12 +57,9 @@ def search_similar_companies_and_events(company_event_description, max_competito
     llm_response = llm.invoke(prompt_competitors)
 
     # Parse the response (assume well-formed JSON, but be prepared for fallback)
-    try:
-        competitor_info = extract_competitor_info(llm_response.content)
-        print(competitor_info)
-    except:
-        print("Failed to parse Similar Companies")
-        competitor_info = []
+
+    competitor_info = extract_competitor_info(llm_response.content)
+    print(competitor_info)
 
     if not isinstance(competitor_info, list):
         competitor_info = []
@@ -78,15 +76,14 @@ def search_similar_companies_and_events(company_event_description, max_competito
 
         event_date = infer_event_date_with_llm(query)
 
-        results.append({
-            "competitor": competitor,
-            "reasoning": reasoning,
-            "event_date": event_date
-        })
+        results.append(
+            {"competitor": competitor, "reasoning": reasoning, "event_date": event_date}
+        )
 
         print(results)
 
     return results
+
 
 # ---------------------------------------------------------------------------- #
 #                   B) Retrieve Stock Data Around a Given Date                 #
@@ -115,11 +112,14 @@ def get_stock_data_for_event(ticker, event_date_str, days_before=30, days_after=
     history = stock.history(start=start_date, end=end_date)
 
     if history.empty:
-        return {"error": f"No stock data found for {ticker} between {start_date} and {end_date}."}
+        return {
+            "error": f"No stock data found for {ticker} between {start_date} and {end_date}."
+        }
 
     history.reset_index(inplace=True)
     print(history.to_dict(orient="records"))
     return history.to_dict(orient="records")
+
 
 # ---------------------------------------------------------------------------- #
 #                    C) Main Analysis Orchestration Function                   #
@@ -128,7 +128,7 @@ def analyze_company_highlight(company, event_description, ticker):
     """
     1. Use an LLM to find competitor companies that had a similar event.
     3. Fetch stock price data around that date ideentified.
-    4. Finally, use the LLM once more to synthesize all of this information into a 
+    4. Finally, use the LLM once more to synthesize all of this information into a
        coherent financial analysis.
 
     Returns:
@@ -136,15 +136,21 @@ def analyze_company_highlight(company, event_description, ticker):
         competitor_info (list): Detailed info about competitor events & stock data.
     """
 
-    print(f"\n=== Analyzing Event for {company} ===\nEvent Description: {event_description}\n")
+    print(
+        f"\n=== Analyzing Event for {company} ===\nEvent Description: {event_description}\n"
+    )
 
     # ------------------------------------------------ #
     #  Step 1: Identify Similar Companies and Events   #
     # ------------------------------------------------ #
-    competitor_events = search_similar_companies_and_events(event_description, max_competitors=3)
+    competitor_events = search_similar_companies_and_events(
+        event_description, max_competitors=3
+    )
     print("\n--- Similar Company Events (from LLM + Tavily) ---")
     for ce in competitor_events:
-        print(f"* Competitor: {ce['competitor']}\n  Reason: {ce['reasoning']}\n  Event Date: {ce['event_date']}")
+        print(
+            f"* Competitor: {ce['competitor']}\n  Reason: {ce['reasoning']}\n  Event Date: {ce['event_date']}"
+        )
 
     # ------------------------------------------------ #
     #  Step 2: Fetch Stock Data for the Discovered Date
@@ -153,8 +159,12 @@ def analyze_company_highlight(company, event_description, ticker):
     for ce in competitor_events:
         event_date = ce["event_date"]
         # Example: if we found a date, fetch stock data ~1mo before, 1mo after
-        stock_data = get_stock_data_for_event(ticker, event_date, days_before=30, days_after=30)
-        parsed_insights = parse_stock_data(stock_data)  # Assuming stock_data is provided
+        stock_data = get_stock_data_for_event(
+            ticker, event_date, days_before=30, days_after=30
+        )
+        parsed_insights = parse_stock_data(
+            stock_data
+        )  # Assuming stock_data is provided
         print(parsed_insights)
         ce["stock_data"] = parsed_insights
 
@@ -199,6 +209,7 @@ def analyze_company_highlight(company, event_description, ticker):
 
     return final_analysis, competitor_events
 
+
 def extract_competitor_info(llm_response_text):
     """
     Extracts competitor names and reasoning from an LLM response string
@@ -211,9 +222,12 @@ def extract_competitor_info(llm_response_text):
     matches = re.findall(pattern, llm_response_text)
 
     # Convert matches into a structured list
-    competitors = [{"competitor": comp, "reasoning": reason} for comp, reason in matches]
+    competitors = [
+        {"competitor": comp, "reasoning": reason} for comp, reason in matches
+    ]
 
     return competitors
+
 
 def normalize_date(date_str):
     """
@@ -237,6 +251,7 @@ def normalize_date(date_str):
 
     return None  # Default case
 
+
 def infer_event_date_with_llm(query):
     """
     This function uses an LLM to infer the most probable date.
@@ -256,7 +271,8 @@ def infer_event_date_with_llm(query):
 
     llm_response = llm.invoke(prompt)
     print(llm_response)
-    return normalize_date(llm_response.content.strip()) 
+    return normalize_date(llm_response.content.strip())
+
 
 def parse_stock_data(stock_data):
     """
@@ -271,7 +287,7 @@ def parse_stock_data(stock_data):
     # Group data by company symbol
     company_data = defaultdict(list)
     for entry in stock_data:
-        company_data[entry['symbol']].append(entry)
+        company_data[entry["symbol"]].append(entry)
 
     insights = {}
 
@@ -279,45 +295,50 @@ def parse_stock_data(stock_data):
         df = pd.DataFrame(data)
 
         # Ensure date is sorted in ascending order
-        df.sort_values(by='date', inplace=True)
+        df.sort_values(by="date", inplace=True)
 
         # Calculate percentage change
-        df['daily_return'] = df['close'].pct_change() * 100  # Percentage change
-        df['volatility'] = df['high'] - df['low']  # Intraday volatility
-        df['moving_avg_7d'] = df['close'].rolling(window=7).mean()  # 7-day moving average
+        df["daily_return"] = df["close"].pct_change() * 100  # Percentage change
+        df["volatility"] = df["high"] - df["low"]  # Intraday volatility
+        df["moving_avg_7d"] = (
+            df["close"].rolling(window=7).mean()
+        )  # 7-day moving average
 
         # Identify largest single-day change
-        max_drop = df.loc[df['daily_return'].idxmin()]
-        max_gain = df.loc[df['daily_return'].idxmax()]
+        max_drop = df.loc[df["daily_return"].idxmin()]
+        max_gain = df.loc[df["daily_return"].idxmax()]
 
         # Identify trends
-        start_price = df.iloc[0]['close']
-        end_price = df.iloc[-1]['close']
+        start_price = df.iloc[0]["close"]
+        end_price = df.iloc[-1]["close"]
         overall_change = ((end_price - start_price) / start_price) * 100
 
         # Volume trend (average and any major spikes)
-        avg_volume = df['volume'].mean()
-        high_volume_days = df[df['volume'] > (1.5 * avg_volume)]
+        avg_volume = df["volume"].mean()
+        high_volume_days = df[df["volume"] > (1.5 * avg_volume)]
 
         # Summary insights
         insights[symbol] = {
             "overall_price_change": round(overall_change, 2),
             "max_single_day_gain": {
                 "date": str(max_gain["date"]),
-                "percentage": round(max_gain["daily_return"], 2)
+                "percentage": round(max_gain["daily_return"], 2),
             },
             "max_single_day_drop": {
                 "date": str(max_drop["date"]),
-                "percentage": round(max_drop["daily_return"], 2)
+                "percentage": round(max_drop["daily_return"], 2),
             },
             "high_volume_days": [
                 {"date": str(row["date"]), "volume": row["volume"]}
                 for _, row in high_volume_days.iterrows()
             ],
-            "7_day_moving_avg": df["moving_avg_7d"].dropna().tolist()[-5:]  # Last 5 entries for trend
+            "7_day_moving_avg": df["moving_avg_7d"]
+            .dropna()
+            .tolist()[-5:],  # Last 5 entries for trend
         }
 
     return insights
+
 
 # ---------------------------------------------------------------------------- #
 #                     Example Usage for Starbucks Layoffs                      #
