@@ -1,17 +1,33 @@
-# Analogous Stock Evaluation
+# Company Insights: AI-Powered Portfolio Intelligence
 
-This project automatically runs every evening to gather information from various news outlets regarding desired companies, parses key summarized events, and then attempts to find past examples of similar happenings. This allows for quick and targeted knowledge of historical context and stock behavior around current events.
+An intelligent research assistant designed for hedge fund portfolio managers to explore how LLMs, agents, and automated tools can enhance investment decision-making. This project demonstrates a practical implementation of AI-driven market intelligence by automatically gathering news, analyzing events, and identifying historical parallels—all powered by local LLMs and modern AI tooling.
+
+## Purpose
+
+This project serves as a **hands-on exploration** for portfolio managers investigating how to leverage:
+- **Large Language Models (LLMs)** for summarizing and analyzing market-moving news
+- **AI Agents** for autonomous information gathering and pattern recognition
+- **Automated Tools** (news APIs, web scraping, vector search) for continuous market monitoring
+
+The system automatically runs every evening to:
+1. Gather information from various news outlets about companies in your portfolio
+2. Parse and summarize key market events using LLMs
+3. Use AI agents to find historical analogues and analyze past stock behavior
+4. Provide portfolio managers with actionable context for current market conditions
+
+**Key Value Proposition**: Transform hours of manual research into automated, consistent intelligence gathering—allowing portfolio managers to focus on strategy rather than data collection.
 
 ---
 
 ## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Installation](#installation)
-3. [Environment Configuration](#environment-configuration)
-4. [Usage](#usage)
-5. [Scheduling the Process](#scheduling-the-process)
-6. [Contributing](#contributing)
-7. [License](#license)
+1. [Purpose](#purpose)
+2. [Prerequisites](#prerequisites)
+3. [Installation](#installation)
+4. [Environment Configuration](#environment-configuration)
+5. [Usage](#usage)
+6. [Scheduling the Process](#scheduling-the-process)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ---
 
@@ -83,9 +99,12 @@ After installing dependencies and configuring environment variables:
 
 The script will:
 
-- Pull news data from configured sources
-- Summarize key events
-- Use Ollama (with the Llama 3.2 model) to draw parallels with past examples and evaluate the stock behavior of thos analagous examples.
+- **Query News Sources**: Use AI-powered tools (Tavily, News API, Firecrawl) to pull relevant market data
+- **Summarize Events**: Leverage local LLMs (Llama 3.2 via Ollama) to parse and distill key information
+- **Identify Historical Patterns**: Use AI agents to find analogous past events and analyze historical stock behavior
+- **Generate Insights**: Provide portfolio managers with contextual intelligence for informed decision-making
+
+This demonstrates how LLMs and agents can augment traditional research workflows with automated, scalable intelligence gathering.
 
 ## Scheduling the Process
 
